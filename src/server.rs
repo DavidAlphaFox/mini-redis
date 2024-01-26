@@ -126,9 +126,10 @@ pub async fn run(listener: TcpListener, shutdown: impl Future) {
     // purpose. The call below ignores the receiver of the broadcast pair, and when
     // a receiver is needed, the subscribe() method on the sender is used to create
     // one.
-    let (notify_shutdown, _) = broadcast::channel(1);
+    let (notify_shutdown, _) = broadcast::channel(1); //broadcast是个多对多的通道，使用fan out模式
     let (shutdown_complete_tx, mut shutdown_complete_rx) = mpsc::channel(1);
-
+    // mpsc::channel是一个多生产者单消费者的通道，通常用来收集任务派发后的结果
+    // 参数是该通道的容量
     // Initialize the listener state
     let mut server = Listener {
         listener,
@@ -227,7 +228,7 @@ impl Listener {
             // closed. We don't ever close the semaphore, so `unwrap()` is safe.
             let permit = self
                 .limit_connections
-                .clone()
+                .clone() //clone只增加引用记数，不真正进行内存复制
                 .acquire_owned()
                 .await
                 .unwrap();
@@ -235,7 +236,7 @@ impl Listener {
             // Accept a new socket. This will attempt to perform error handling.
             // The `accept` method internally attempts to recover errors, so an
             // error here is non-recoverable.
-            let socket = self.accept().await?;
+            let socket = self.accept().await?; //获得一个socket
 
             // Create the necessary per-connection handler state.
             let mut handler = Handler {
@@ -252,7 +253,7 @@ impl Listener {
                 // Notifies the receiver half once all clones are
                 // dropped.
                 _shutdown_complete: self.shutdown_complete_tx.clone(),
-            };
+            }; //创建新的handler
 
             // Spawn a new task to process the connections. Tokio tasks are like
             // asynchronous green threads and are executed concurrently.

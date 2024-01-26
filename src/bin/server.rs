@@ -28,6 +28,15 @@ use tracing_subscriber::{
     fmt, layer::SubscriberExt, util::SubscriberInitExt, util::TryInitError, EnvFilter,
 };
 
+///
+/// tokio::runtime::Builder::new_multi_thread()
+///         .enable_all()
+///         .build()
+///         .unwrap()
+///         .block_on(async {
+///             main()
+///         })
+/// }
 #[tokio::main]
 pub async fn main() -> mini_redis::Result<()> {
     set_up_logging()?;
