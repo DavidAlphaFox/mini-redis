@@ -228,11 +228,11 @@ impl Listener {
             // closed. We don't ever close the semaphore, so `unwrap()` is safe.
             let permit = self
                 .limit_connections
-                .clone() //clone只增加引用记数，不真正进行内存复制
+                .clone() //增加引用计数，并复制
                 .acquire_owned()
                 .await
                 .unwrap();
-
+            //在建立新的连接前，先要或取对应的token
             // Accept a new socket. This will attempt to perform error handling.
             // The `accept` method internally attempts to recover errors, so an
             // error here is non-recoverable.
@@ -248,7 +248,7 @@ impl Listener {
                 connection: Connection::new(socket),
 
                 // Receive shutdown notifications.
-                shutdown: Shutdown::new(self.notify_shutdown.subscribe()),
+                shutdown: Shutdown::new(self.notify_shutdown.subscribe()), //订阅退出通知
 
                 // Notifies the receiver half once all clones are
                 // dropped.
@@ -260,7 +260,7 @@ impl Listener {
             tokio::spawn(async move {
                 // Process the connection. If an error is encountered, log it.
                 if let Err(err) = handler.run().await {
-                    error!(cause = ?err, "connection error");
+                    error!(cause = ?err, "connection error"); //如果发生异常了，直接退出
                 }
                 // Move the permit into the task and drop it after completion.
                 // This returns the permit back to the semaphore.
