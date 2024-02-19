@@ -195,7 +195,7 @@ pub async fn run(listener: TcpListener, shutdown: impl Future) {
     // handle held by the listener has been dropped above, the only remaining
     // `Sender` instances are held by connection handler tasks. When those drop,
     // the `mpsc` channel will close and `recv()` will return `None`.
-    let _ = shutdown_complete_rx.recv().await;
+    let _ = shutdown_complete_rx.recv().await; //等待所有的连接都结束了，此处才会结束
 }
 
 impl Listener {
