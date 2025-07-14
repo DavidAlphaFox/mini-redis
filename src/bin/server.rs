@@ -53,9 +53,9 @@ pub async fn main() -> mini_redis::Result<()> {
 }
 
 #[derive(Parser, Debug)]
-#[clap(name = "mini-redis-server", version, author, about = "A Redis server")]
+#[command(name = "mini-redis-server", version, author, about = "A Redis server")]
 struct Cli {
-    #[clap(long)]
+    #[arg(long)]
     port: Option<u16>,
 }
 
@@ -71,7 +71,7 @@ fn set_up_logging() -> Result<(), TryInitError> {
     // Note: If you need to pass the x-amzn-trace-id across services in the same trace,
     // you will need this line. However, this requires additional code not pictured here.
     // For a full example using hyper, see:
-    // https://github.com/open-telemetry/opentelemetry-rust/blob/main/examples/aws-xray/src/server.rs#L14-L26
+    // https://github.com/open-telemetry/opentelemetry-rust/blob/v0.19.0/examples/aws-xray/src/server.rs#L14-L26
     global::set_text_map_propagator(XrayPropagator::default());
 
     let tracer = opentelemetry_otlp::new_pipeline()
